@@ -1,0 +1,21 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# NPM & frontend build
+node_modules/
+st_vortree/frontend/dist/
+
+# macOS
+.DS_Store

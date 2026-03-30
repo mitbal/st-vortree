@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "st-vortree"
+version = "0.1.0"
+authors = [
+  { name="Mitbal" },
+]
+description = "A Streamlit V2 component to plot Voronoi Treemaps from pandas dataframes."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "streamlit>=1.38.0",
+    "pandas>=1.0.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["st_vortree*"]
+
+[tool.setuptools.package-data]
+"st_vortree" = ["frontend/dist/**"]

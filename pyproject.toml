@@ -22,3 +22,7 @@ include = ["st_vortree*"]
 
 [tool.setuptools.package-data]
 "st_vortree" = ["frontend/dist/**"]
+
+[[tool.streamlit.component.components]]
+name = "st_vortree"
+asset_dir = "frontend/dist"

@@ -39,14 +39,18 @@ def st_vortree(
     data_records = subset_df.to_dict('records')
 
     # Component call
+    # In Streamlit V2 (BidiComponent), we pack all state/inputs into a single data dictionary 
+    # to ensure they are all delivered to the frontend renderer.
     component_value = _component_func(
-        data=data_records,
-        color_scheme=color_scheme,
-        show_values=show_values,
-        label_scale=label_scale,
-        border_color=border_color,
-        border_width=border_width,
-        show_legend=show_legend,
+        data={
+            "data": data_records,
+            "color_scheme": color_scheme,
+            "show_values": show_values,
+            "label_scale": label_scale,
+            "border_color": border_color,
+            "border_width": border_width,
+            "show_legend": show_legend,
+        },
         key=key,
         default=None
     )

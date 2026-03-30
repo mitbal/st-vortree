@@ -28,11 +28,12 @@ const VoronoiRoot: FrontendRenderer<any, any> = (args) => {
   }
 
   // Pass any kwargs from Python directly into Voronoi Component
+  // In Streamlit V2 (actual), the passed data = { data: ..., color_scheme: ..., etc. }
+  // We spread that dictionary so that each one becomes a prop on the VoronoiComponent
   reactRoot.render(
     <StrictMode>
       <VoronoiComponent 
-        data={args.data} 
-        {...args} // all custom kwargs passed from Python
+        {...(args.data || {})}
       />
     </StrictMode>,
   );

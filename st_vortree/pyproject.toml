@@ -1,7 +1,0 @@
-[project]
-name = "st-vortree"
-version = "0.1.0"
-
-[[tool.streamlit.component.components]]
-name = "st_vortree"
-asset_dir = "frontend/dist"

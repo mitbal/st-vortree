@@ -6,7 +6,7 @@ _COMPONENT_NAME = "st_vortree"
 
 # Use the V2 component declaration
 _component_func = st.components.v2.component(
-    "st-vortree.st_vortree",
+    "st_vortree.st_vortree",
     js="vortree.js",
     css="style.css",
     html='<div class="react-root"></div>',

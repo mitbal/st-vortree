@@ -11,14 +11,23 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
     const height = container.clientHeight;
 
     // ... rest of the setup
-    const cx = width / 2;
-    const cy = height / 2;
-    const radius = Math.min(width, height) / 2 - 10;
-    const nPoints = 100;
+    let estimatedLegendWidth = 0;
+    let legendGap = 0;
+    if (showLegend) {
+        estimatedLegendWidth = 240;
+        legendGap = 30;
+    }
 
-    // If showing legend, adjust visualization area or add legend overlay
-    // For now, let's keep the circle and add legend on the right or bottom if there's space.
-    // Actually, let's just overlay it or put it in a corner.
+    const availablePlotWidth = width - legendGap - estimatedLegendWidth;
+    let radius = Math.min(availablePlotWidth / 2, height / 2) - 10;
+    radius = Math.max(10, radius); // Ensure positive radius
+
+    const totalContentWidth = 2 * radius + legendGap + estimatedLegendWidth;
+    const startX = (width - totalContentWidth) / 2;
+    
+    const cx = startX + radius;
+    const cy = height / 2;
+    const nPoints = 100;
 
     const clipPolygon = d3.range(nPoints).map(i => {
         const theta = (i / nPoints) * 2 * Math.PI;
@@ -167,27 +176,30 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
     if (showLegend && (hasGroups || leaves.length > 0)) {
         const legendData = hasGroups ? groups : leaves;
 
+        const legendX = cx + radius + legendGap;
+        const legendY = Math.max(20, cy - (legendData.length * 35) / 2);
+
         const legend = svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(20, 20)`);
+            .attr("transform", `translate(${legendX}, ${legendY})`);
 
         const legendItems = legend.selectAll(".legend-item")
             .data(legendData)
             .enter()
             .append("g")
             .attr("class", "legend-item")
-            .attr("transform", (d, i) => `translate(0, ${i * 25})`); // Increased spacing
+            .attr("transform", (d, i) => `translate(0, ${i * 35})`); // Increased spacing
 
         legendItems.append("rect")
-            .attr("width", 18) // Increased from 15
-            .attr("height", 18) // Increased from 15
-            .attr("rx", 4)
+            .attr("width", 24) // Increased from 18
+            .attr("height", 24) // Increased from 18
+            .attr("rx", 6)
             .style("fill", d => colorScale(d.data.name));
 
         legendItems.append("text")
-            .attr("x", 25)
-            .attr("y", 14)
-            .style("font-size", "14px") // Increased from 12px
+            .attr("x", 36) // 24 (rect size) + 12 (padding)
+            .attr("y", 18) // vertically centered with rect
+            .style("font-size", "18px") // Increased from 14px
             .style("fill", borderColor === '#ffffff' ? '#ffffff' : '#333')
             .style("font-weight", "500")
             .text(d => {

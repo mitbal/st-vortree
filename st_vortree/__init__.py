@@ -24,6 +24,7 @@ def st_vortree(
     border_color: str = "#ffffff", 
     border_width: int = 1, 
     show_legend: bool = True, 
+    height: int = 400,
     key=None
 ):
     """
@@ -52,6 +53,7 @@ def st_vortree(
             "border_color": border_color,
             "border_width": border_width,
             "show_legend": show_legend,
+            "height": height,
         },
         key=key,
         default=None

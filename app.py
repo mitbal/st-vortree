@@ -65,6 +65,7 @@ label_scale = st.sidebar.slider("Label Scale", 0.5, 2.0, 1.0)
 border_color = st.sidebar.color_picker("Border Color", "#ffffff")
 border_width = st.sidebar.slider("Border Width", 0, 5, 2)
 show_legend = st.sidebar.checkbox("Show Legend", value=True)
+height = st.sidebar.slider("Treemap Height", 200, 1000, 400)
 
 if uploaded_file is not None:
     st.write("### Data Preview")
@@ -84,6 +85,7 @@ if group_col:
         border_color=border_color,
         border_width=border_width,
         show_legend=show_legend,
+        height=height,
         key="grouped_treemap"
     )
 else:
@@ -101,5 +103,6 @@ st_vortree(
     border_color=border_color,
     border_width=border_width,
     show_legend=show_legend,
+    height=height,
     key="ungrouped_treemap"
 )

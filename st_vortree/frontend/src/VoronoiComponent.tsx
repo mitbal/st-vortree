@@ -11,10 +11,12 @@ export interface VoronoiProps {
   border_color?: string;
   border_width?: number;
   show_legend?: boolean;
+  height?: number;
 }
 
 const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const height = props.height || 400;
 
   useEffect(() => {
     if (!props.data || !containerRef.current) return
@@ -60,12 +62,12 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
         console.error("Error rendering Voronoi Treemap:", err)
       }
     }
-  }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend])
+  }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend, props.height])
 
   return (
     <div 
       className="voronoi-container" 
-      style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}
+      style={{ width: '100vw', height: height, overflow: 'hidden' }}
     >
       <div 
         ref={containerRef} 

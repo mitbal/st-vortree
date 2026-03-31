@@ -6,6 +6,7 @@ export interface VoronoiProps {
   theme?: any;
   color_scheme?: string;
   show_values?: boolean;
+  show_pct_only?: boolean;
   label_scale?: number;
   border_color?: string;
   border_width?: number;
@@ -22,6 +23,7 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
       data,
       color_scheme = 'tableau10',
       show_values = false,
+      show_pct_only = false,
       label_scale = 1.0,
       border_color = '#ffffff',
       border_width = 1,
@@ -48,6 +50,7 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
           containerRef.current, 
           color_scheme, 
           show_values, 
+          show_pct_only,
           label_scale, 
           border_color, 
           border_width, 
@@ -57,7 +60,7 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
         console.error("Error rendering Voronoi Treemap:", err)
       }
     }
-  }, [props.data, props.theme, props.color_scheme, props.show_values, props.label_scale, props.border_color, props.border_width, props.show_legend])
+  }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend])
 
   return (
     <div 

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { voronoiTreemap } from 'd3-voronoi-treemap';
 
-export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10', showValues = false, labelScale = 1.0, borderColor = '#ffffff', borderWidth = 1, showLegend = true) {
+export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10', showValues = false, showPctOnly = false, labelScale = 1.0, borderColor = '#ffffff', borderWidth = 1, showLegend = true) {
     if (!container) return;
 
     // Clear previous
@@ -118,14 +118,14 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             return (size * labelScale) + "px";
         });
 
-    // Name
-    labels.append("tspan")
-        .attr("x", d => d3.polygonCentroid(d.polygon)[0])
-        .attr("dy", showValues ? "-0.6em" : "0.3em")
-        .text(d => d.data.name);
+    if (showPctOnly) {
+        // Name
+        labels.append("tspan")
+            .attr("x", d => d3.polygonCentroid(d.polygon)[0])
+            .attr("dy", "-0.6em")
+            .text(d => d.data.name);
 
-    // Value and Percentage
-    if (showValues) {
+        // Percentage Only
         labels.append("tspan")
             .attr("x", d => d3.polygonCentroid(d.polygon)[0])
             .attr("dy", "1.2em")
@@ -133,8 +133,27 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             .style("opacity", 0.8)
             .text(d => {
                 const percent = (d.value / totalValue * 100).toFixed(1);
-                return `${d.value} (${percent}%)`;
+                return `${percent}%`;
             });
+    } else {
+        // Name
+        labels.append("tspan")
+            .attr("x", d => d3.polygonCentroid(d.polygon)[0])
+            .attr("dy", showValues ? "-0.6em" : "0.3em")
+            .text(d => d.data.name);
+
+        // Value and Percentage
+        if (showValues) {
+            labels.append("tspan")
+                .attr("x", d => d3.polygonCentroid(d.polygon)[0])
+                .attr("dy", "1.2em")
+                .style("font-size", "0.8em")
+                .style("opacity", 0.8)
+                .text(d => {
+                    const percent = (d.value / totalValue * 100).toFixed(1);
+                    return `${d.value} (${percent}%)`;
+                });
+        }
     }
 
     // Tooltip
@@ -146,9 +165,7 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
 
     // Legend
     if (showLegend && (hasGroups || leaves.length > 0)) {
-        const legendData = hasGroups ?
-            groups.map(g => g.data.name) :
-            leaves.map(l => l.data.name);
+        const legendData = hasGroups ? groups : leaves;
 
         const legend = svg.append("g")
             .attr("class", "legend")
@@ -165,7 +182,7 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             .attr("width", 18) // Increased from 15
             .attr("height", 18) // Increased from 15
             .attr("rx", 4)
-            .style("fill", d => colorScale(d));
+            .style("fill", d => colorScale(d.data.name));
 
         legendItems.append("text")
             .attr("x", 25)
@@ -173,7 +190,10 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             .style("font-size", "14px") // Increased from 12px
             .style("fill", borderColor === '#ffffff' ? '#ffffff' : '#333')
             .style("font-weight", "500")
-            .text(d => d);
+            .text(d => {
+                const percent = (d.value / totalValue * 100).toFixed(1);
+                return `${d.data.name} (${percent}%)`;
+            });
 
         // Ensure white text if dark background, etc. 
         // Better: use CSS for legend text.

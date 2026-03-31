@@ -60,6 +60,7 @@ color_scheme = st.sidebar.selectbox(
     ["tableau10", "category10", "pastel1", "dark", "cool", "warm"]
 )
 show_values = st.sidebar.checkbox("Show Values", value=True)
+show_pct_only = st.sidebar.checkbox("Show Percentages Only", value=False)
 label_scale = st.sidebar.slider("Label Scale", 0.5, 2.0, 1.0)
 border_color = st.sidebar.color_picker("Border Color", "#ffffff")
 border_width = st.sidebar.slider("Border Width", 0, 5, 2)
@@ -78,6 +79,7 @@ if group_col:
         group_col=group_col,
         color_scheme=color_scheme,
         show_values=show_values,
+        show_pct_only=show_pct_only,
         label_scale=label_scale,
         border_color=border_color,
         border_width=border_width,
@@ -94,6 +96,7 @@ st_vortree(
     value_col=value_col,
     color_scheme=color_scheme,
     show_values=show_values,
+    show_pct_only=show_pct_only,
     label_scale=label_scale,
     border_color=border_color,
     border_width=border_width,

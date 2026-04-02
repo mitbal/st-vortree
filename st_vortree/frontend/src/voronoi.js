@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { voronoiTreemap } from 'd3-voronoi-treemap';
 
-export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10', showValues = false, showPctOnly = false, labelScale = 1.0, borderColor = '#ffffff', borderWidth = 1, showLegend = true) {
+export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10', showValues = false, showPctOnly = false, labelScale = 1.0, borderColor = '#ffffff', borderWidth = 1, showLegend = true, colorScaleType = 'green', showColorValue = false) {
     if (!container) return;
 
     // Clear previous
@@ -79,7 +79,30 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
         .attr("width", width)
         .attr("height", height);
 
-    // Create color scale once
+    // Determine if data has a numeric color field
+    const hasColorField = data.some(d => d.color !== undefined && d.color !== null);
+    let sequentialColorScale = null;
+    if (hasColorField) {
+        const colorValues = data.map(d => +d.color).filter(v => !isNaN(v));
+        const minVal = d3.min(colorValues);
+        const maxVal = d3.max(colorValues);
+
+        if (colorScaleType === 'red_green') {
+            // Anchor at zero: negatives → red gradient, positives → green gradient.
+            // Domain [0, minVal] maps 0→white end, minVal→deep red (since minVal < 0, t goes 0→1).
+            // Domain [0, maxVal] maps 0→white end, maxVal→deep green.
+            const redInterp   = d3.interpolateRgb('#fff5f0', '#a50f15');
+            const greenInterp = d3.interpolateRgb('#f7fcf5', '#00441b');
+            const negScale = d3.scaleSequential(redInterp).domain([0, minVal]);
+            const posScale = d3.scaleSequential(greenInterp).domain([0, maxVal]);
+            sequentialColorScale = v => (+v < 0 ? negScale(+v) : posScale(+v));
+        } else {
+            const interpolator = getColorScaleInterpolator(colorScaleType);
+            sequentialColorScale = d3.scaleSequential(interpolator).domain([minVal, maxVal]);
+        }
+    }
+
+    // Create categorical color scale (used as fallback)
     const colorScale = getColorScale(colorScheme);
 
     // Draw leaf cells
@@ -93,6 +116,9 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
         .attr("d", d => "M" + d.polygon.join("L") + "Z")
         .attr("class", "voronoi-cell")
         .style("fill", (d) => {
+            if (sequentialColorScale && d.data.color !== undefined && d.data.color !== null) {
+                return sequentialColorScale(+d.data.color);
+            }
             const key = (hasGroups && d.parent && d.parent.depth > 0) ? d.parent.data.name : d.data.name;
             return colorScale(key);
         })
@@ -112,6 +138,24 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             .style("pointer-events", "none");
     }
 
+    // Helper: get fill color for a leaf node
+    function getCellFill(d) {
+        if (sequentialColorScale && d.data.color !== undefined && d.data.color !== null) {
+            return sequentialColorScale(+d.data.color);
+        }
+        const key = (hasGroups && d.parent && d.parent.depth > 0) ? d.parent.data.name : d.data.name;
+        return colorScale(key);
+    }
+
+    // Helper: compute perceived luminance (0=dark, 1=bright) of a CSS color string
+    function getLuminance(colorStr) {
+        const c = d3.color(colorStr);
+        if (!c) return 0;
+        const r = c.r / 255, g = c.g / 255, b = c.b / 255;
+        const toLinear = v => v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+    }
+
     // Labels
     const labels = cellGroups.append("text")
         .attr("x", d => d3.polygonCentroid(d.polygon)[0])
@@ -119,20 +163,29 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
         .attr("class", "voronoi-label")
         .style("pointer-events", "none")
         .style("text-anchor", "middle")
+        .style("fill", d => getLuminance(getCellFill(d)) > 0.35 ? "#1a1a1a" : "#ffffff")
+        .style("text-shadow", d => getLuminance(getCellFill(d)) > 0.35 ? "none" : "0px 1px 2px rgba(0,0,0,0.4)")
         .style("font-size", d => {
             const area = Math.abs(d3.polygonArea(d.polygon));
             const size = Math.sqrt(area) * 0.12;
             return (size * labelScale) + "px";
         });
 
+    // Determine how many sub-lines each cell will have (for vertical centering)
+    const hasColorValueLine = showColorValue && hasColorField;
+    const hasSecondLine = showPctOnly || showValues;
+    const totalLines = 1 + (hasSecondLine ? 1 : 0) + (hasColorValueLine ? 1 : 0);
+    // dy of first tspan: shift up so the block is centred
+    const firstDy = totalLines === 3 ? "-1.2em" : totalLines === 2 ? "-0.6em" : "0.3em";
+
     if (showPctOnly) {
         // Name
         labels.append("tspan")
             .attr("x", d => d3.polygonCentroid(d.polygon)[0])
-            .attr("dy", "-0.6em")
+            .attr("dy", firstDy)
             .text(d => d.data.name);
 
-        // Percentage Only
+        // Share of total
         labels.append("tspan")
             .attr("x", d => d3.polygonCentroid(d.polygon)[0])
             .attr("dy", "1.2em")
@@ -146,10 +199,10 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
         // Name
         labels.append("tspan")
             .attr("x", d => d3.polygonCentroid(d.polygon)[0])
-            .attr("dy", showValues ? "-0.6em" : "0.3em")
+            .attr("dy", showValues ? firstDy : (hasColorValueLine ? "-0.6em" : "0.3em"))
             .text(d => d.data.name);
 
-        // Value and Percentage
+        // Value and share of total
         if (showValues) {
             labels.append("tspan")
                 .attr("x", d => d3.polygonCentroid(d.polygon)[0])
@@ -161,6 +214,21 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
                     return `${d.value} (${percent}%)`;
                 });
         }
+    }
+
+    // Color value line (e.g. % change)
+    if (hasColorValueLine) {
+        labels.append("tspan")
+            .attr("x", d => d3.polygonCentroid(d.polygon)[0])
+            .attr("dy", "1.2em")
+            .style("font-size", "0.85em")
+            .style("font-weight", "600")
+            .text(d => {
+                if (d.data.color === undefined || d.data.color === null) return "";
+                const v = +d.data.color;
+                const sign = v >= 0 ? "+" : "";
+                return `${sign}${v.toFixed(2)}%`;
+            });
     }
 
     // Tooltip
@@ -237,5 +305,20 @@ function getColorScale(scheme) {
         case 'tableau10':
         default:
             return d3.scaleOrdinal(tableau20);
+    }
+}
+
+function getColorScaleInterpolator(scaleType) {
+    switch (scaleType) {
+        case 'red':
+            // white → red
+            return d3.interpolateRgb('#fff5f0', '#a50f15');
+        case 'red_green':
+            // red → yellow → green  (RdYlGn)
+            return d3.interpolateRdYlGn;
+        case 'green':
+        default:
+            // white → green
+            return d3.interpolateRgb('#f7fcf5', '#00441b');
     }
 }

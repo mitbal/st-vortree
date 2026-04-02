@@ -12,6 +12,8 @@ export interface VoronoiProps {
   border_width?: number;
   show_legend?: boolean;
   height?: number;
+  color_scale?: string;
+  show_color_value?: boolean;
 }
 
 const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
@@ -29,7 +31,9 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
       label_scale = 1.0,
       border_color = '#ffffff',
       border_width = 1,
-      show_legend = true
+      show_legend = true,
+      color_scale = 'green',
+      show_color_value = false
     } = props
 
     // Apply Streamlit's base theme styles if requested, but for now we'll just handle standard visualization.
@@ -56,13 +60,15 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
           label_scale,
           border_color,
           border_width,
-          show_legend
+          show_legend,
+          color_scale,
+          show_color_value
         )
       } catch (err) {
         console.error("Error rendering Voronoi Treemap:", err)
       }
     }
-  }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend, props.height])
+  }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend, props.height, props.color_scale, props.show_color_value])
 
   return (
     <div

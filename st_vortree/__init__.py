@@ -25,6 +25,9 @@ def st_vortree(
     name_col: str = "name", 
     value_col: str = "value", 
     group_col: str = None,
+    color_col: str = None,
+    color_scale: str = "green",
+    show_color_value: bool = False,
     color_scheme: str = "tableau10", 
     show_values: bool = False, 
     show_pct_only: bool = False,
@@ -42,6 +45,8 @@ def st_vortree(
     cols_to_keep = {name_col: "name", value_col: "value"}
     if group_col and group_col in df.columns:
         cols_to_keep[group_col] = "group"
+    if color_col and color_col in df.columns:
+        cols_to_keep[color_col] = "color"
     
     available_cols = [c for c in cols_to_keep.keys() if c in df.columns]
     
@@ -55,6 +60,8 @@ def st_vortree(
         data={
             "data": data_records,
             "color_scheme": color_scheme,
+            "color_scale": color_scale,
+            "show_color_value": show_color_value,
             "show_values": show_values,
             "show_pct_only": show_pct_only,
             "label_scale": label_scale,

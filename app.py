@@ -22,8 +22,9 @@ def get_mock_data():
         for comp in companies[cat]:
             data.append({
                 "Company": comp,
-                "MarketCap": random.randint(50, 1000), # Mock value
-                "Sector": cat
+                "MarketCap": random.randint(50, 1000),  # Mock market cap
+                "Sector": cat,
+                "PctChange": round(random.uniform(-20, 20), 2),  # Mock % change
             })
     return pd.DataFrame(data)
 
@@ -50,10 +51,39 @@ if uploaded_file is not None:
     group_options = ["None"] + columns
     group_col_selection = st.sidebar.selectbox("Group Column", group_options, index=0)
     group_col = group_col_selection if group_col_selection != "None" else None
+
+    color_col_options = ["None"] + columns
+    color_col_selection = st.sidebar.selectbox("Color Column", color_col_options, index=0)
+    color_col = color_col_selection if color_col_selection != "None" else None
+
+    if color_col:
+        color_scale = st.sidebar.selectbox(
+            "Color Gradient",
+            options=["green", "red", "red_green"],
+            format_func=lambda x: {"green": "🟢 Green", "red": "🔴 Red", "red_green": "🔴→🟢 Red–Green"}[x]
+        )
+        show_color_value = st.sidebar.checkbox("Show Color Value as Label", value=False)
+    else:
+        color_scale = "green"
+        show_color_value = False
 else:
     name_col = "Company"
     value_col = "MarketCap"
     group_col = "Sector"
+    use_color_col = st.sidebar.checkbox("Color by % Change", value=False)
+    if use_color_col:
+        color_col = "PctChange"
+        color_scale = st.sidebar.selectbox(
+            "Color Gradient",
+            options=["green", "red", "red_green"],
+            format_func=lambda x: {"green": "🟢 Green", "red": "🔴 Red", "red_green": "🔴→🟢 Red–Green"}[x],
+            key="mock_color_scale"
+        )
+        show_color_value = st.sidebar.checkbox("Show % Change as Label", value=False, key="mock_show_color_value")
+    else:
+        color_col = None
+        color_scale = "green"
+        show_color_value = False
 
 color_scheme = st.sidebar.selectbox(
     "Color Scheme", 
@@ -78,6 +108,9 @@ if group_col:
         name_col=name_col,
         value_col=value_col,
         group_col=group_col,
+        color_col=color_col,
+        color_scale=color_scale,
+        show_color_value=show_color_value,
         color_scheme=color_scheme,
         show_values=show_values,
         show_pct_only=show_pct_only,
@@ -96,6 +129,9 @@ st_vortree(
     df,
     name_col=name_col,
     value_col=value_col,
+    color_col=color_col,
+    color_scale=color_scale,
+    show_color_value=show_color_value,
     color_scheme=color_scheme,
     show_values=show_values,
     show_pct_only=show_pct_only,

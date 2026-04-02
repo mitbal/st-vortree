@@ -22,10 +22,8 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
     let radius = Math.min(availablePlotWidth / 2, height / 2) - 10;
     radius = Math.max(10, radius); // Ensure positive radius
 
-    const totalContentWidth = 2 * radius + legendGap + estimatedLegendWidth;
-    const startX = (width - totalContentWidth) / 2;
-    
-    const cx = startX + radius;
+    const leftPadding = 10;
+    const cx = leftPadding + radius;
     const cy = height / 2;
     const nPoints = 100;
 

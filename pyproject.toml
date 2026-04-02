@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "st-vortree"
-version = "0.1.5"
+version = "0.1.8"
 authors = [
   { name="Mitbal" },
 ]
@@ -21,7 +21,7 @@ where = ["."]
 include = ["st_vortree*"]
 
 [tool.setuptools.package-data]
-"st_vortree" = ["st_vortree/frontend/dist/**", "pyproject.toml"]
+"st_vortree" = ["frontend/dist/**", "pyproject.toml"]
 
 [[tool.streamlit.component.components]]
 name = "st_vortree.st_vortree"

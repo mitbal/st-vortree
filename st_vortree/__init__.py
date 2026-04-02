@@ -1,14 +1,22 @@
 import streamlit as st
 import os
+import pathlib
 import pandas as pd
 
 _COMPONENT_NAME = "st_vortree"
+_DIR = pathlib.Path(__file__).parent
+
+# Read JS/CSS as inline content so no asset_dir discovery is needed.
+# Streamlit's resolver treats any string with a newline as inline content,
+# bypassing pyproject.toml scanning entirely — this works for any install method.
+_JS = (_DIR / "frontend" / "dist" / "vortree.js").read_text(encoding="utf-8")
+_CSS = (_DIR / "frontend" / "dist" / "style.css").read_text(encoding="utf-8")
 
 # Use the V2 component declaration
 _component_func = st.components.v2.component(
     "st_vortree.st_vortree",
-    js="vortree.js",
-    css="style.css",
+    js=_JS,
+    css=_CSS,
     html='<div class="react-root"></div>',
 )
 

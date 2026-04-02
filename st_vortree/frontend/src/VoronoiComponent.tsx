@@ -41,21 +41,21 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
     if (data && Array.isArray(data) && data.length > 0) {
       // Clear container before re-drawing
       containerRef.current.innerHTML = ''
-      
+
       const id = 'vortree-container'
       const uniqueId = id + '-' + Math.random().toString(36).substr(2, 9);
       containerRef.current.id = uniqueId;
 
       try {
         renderVoronoiTreemap(
-          data, 
-          containerRef.current, 
-          color_scheme, 
-          show_values, 
+          data,
+          containerRef.current,
+          color_scheme,
+          show_values,
           show_pct_only,
-          label_scale, 
-          border_color, 
-          border_width, 
+          label_scale,
+          border_color,
+          border_width,
           show_legend
         )
       } catch (err) {
@@ -65,13 +65,13 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
   }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend, props.height])
 
   return (
-    <div 
-      className="voronoi-container" 
+    <div
+      className="voronoi-container"
       style={{ width: '100vw', height: height, overflow: 'hidden' }}
     >
-      <div 
-        ref={containerRef} 
-        style={{ width: '100%', height: '100%', minHeight: '300px' }} 
+      <div
+        ref={containerRef}
+        style={{ width: '100%', height: '100%', minHeight: '300px' }}
       />
     </div>
   )

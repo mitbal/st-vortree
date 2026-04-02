@@ -91,8 +91,8 @@ export function renderVoronoiTreemap(data, container, colorScheme = 'tableau10',
             // Anchor at zero: negatives → red gradient, positives → green gradient.
             // Domain [0, minVal] maps 0→white end, minVal→deep red (since minVal < 0, t goes 0→1).
             // Domain [0, maxVal] maps 0→white end, maxVal→deep green.
-            const redInterp   = d3.interpolateRgb('#fff5f0', '#a50f15');
-            const greenInterp = d3.interpolateRgb('#f7fcf5', '#00441b');
+            const redInterp   = d3.interpolateRgb('#FFEBEE', '#8B0000');
+            const greenInterp = d3.interpolateRgb('#EEFBF1', '#1B5E20');
             const negScale = d3.scaleSequential(redInterp).domain([0, minVal]);
             const posScale = d3.scaleSequential(greenInterp).domain([0, maxVal]);
             sequentialColorScale = v => (+v < 0 ? negScale(+v) : posScale(+v));
@@ -311,14 +311,14 @@ function getColorScale(scheme) {
 function getColorScaleInterpolator(scaleType) {
     switch (scaleType) {
         case 'red':
-            // white → red
-            return d3.interpolateRgb('#fff5f0', '#a50f15');
+            // near-white → deep brick red
+            return d3.interpolateRgb('#FFEBEE', '#8B0000');
         case 'red_green':
-            // red → yellow → green  (RdYlGn)
-            return d3.interpolateRdYlGn;
+            // handled separately with split zero-anchor; this fallback won't normally be used
+            return d3.interpolateRgb('#FFEBEE', '#8B0000');
         case 'green':
         default:
-            // white → green
-            return d3.interpolateRgb('#f7fcf5', '#00441b');
+            // near-white → deep forest green
+            return d3.interpolateRgb('#EEFBF1', '#1B5E20');
     }
 }

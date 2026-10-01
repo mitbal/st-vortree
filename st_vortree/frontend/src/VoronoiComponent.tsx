@@ -21,7 +21,8 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
   const height = props.height || 400;
 
   useEffect(() => {
-    if (!props.data || !containerRef.current) return
+    const container = containerRef.current
+    if (!props.data || !container) return
 
     const {
       data,
@@ -42,18 +43,32 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
       document.documentElement.style.setProperty('--text-color', props.theme.textColor)
     }
 
-    if (data && Array.isArray(data) && data.length > 0) {
+    if (!(data && Array.isArray(data) && data.length > 0)) return
+
+    let drawnWidth = 0
+    let drawnHeight = 0
+
+    const draw = () => {
+      const width = container.clientWidth
+      const height = container.clientHeight
+      // Hidden containers (e.g. an inactive st.tabs panel) report zero width;
+      // wait for the ResizeObserver to fire once they become visible.
+      if (width === 0 || height === 0) return
+      if (width === drawnWidth && height === drawnHeight) return
+      drawnWidth = width
+      drawnHeight = height
+
       // Clear container before re-drawing
-      containerRef.current.innerHTML = ''
+      container.innerHTML = ''
 
       const id = 'vortree-container'
       const uniqueId = id + '-' + Math.random().toString(36).substr(2, 9);
-      containerRef.current.id = uniqueId;
+      container.id = uniqueId;
 
       try {
         renderVoronoiTreemap(
           data,
-          containerRef.current,
+          container,
           color_scheme,
           show_values,
           show_pct_only,
@@ -68,12 +83,28 @@ const VoronoiComponent: React.FC<VoronoiProps> = (props) => {
         console.error("Error rendering Voronoi Treemap:", err)
       }
     }
+
+    draw()
+
+    // Redraw when the container is shown or resized. Coalesce bursts of
+    // resize events into one layout per animation frame.
+    let frame = 0
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(draw)
+    })
+    observer.observe(container)
+
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
   }, [props.data, props.theme, props.color_scheme, props.show_values, props.show_pct_only, props.label_scale, props.border_color, props.border_width, props.show_legend, props.height, props.color_scale, props.show_color_value])
 
   return (
     <div
       className="voronoi-container"
-      style={{ width: '100vw', height: height, overflow: 'hidden' }}
+      style={{ width: '100%', height: height, overflow: 'hidden' }}
     >
       <div
         ref={containerRef}

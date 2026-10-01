@@ -69,7 +69,7 @@ Renders a given pandas DataFrame as a Voronoi treemap visualization.
 - `name_col (str)`: The name of the column containing the labels for the polygons. Defaults to `"name"`.
 - `value_col (str)`: The name of the column containing the numeric sizes of the polygons. Defaults to `"value"`.
 - `group_col (str, optional)`: The name of the column used for grouping features together into a hierarchy. Defaults to `None`.
-- `color_scheme (str)`: D3 categorical color scale to apply. Options include `"tableau10"`, `"category10"`, `"pastel1"`, `"dark"`, `"cool"`, `"warm"`. Defaults to `"tableau10"`.
+- `color_scheme (str)`: D3 categorical color scale to apply. Options include `"tableau10"`, `"category10"`, `"pastel1"`, `"dark"`, `"cool"`, `"warm"`, and `"forest"` (muted green–brown earth tones). Defaults to `"tableau10"`.
 - `show_values (bool)`: Whether to show the metric value and relative percentage inside the polygon labels. Defaults to `False`.
 - `label_scale (float)`: Scale multiplier for the dynamically sized text labels. Defaults to `1.0`.
 - `border_color (str)`: Hex color of the polygon outlines. Defaults to `"#ffffff"`.

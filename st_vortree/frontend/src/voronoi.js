@@ -291,6 +291,14 @@ function getColorScale(scheme) {
     ];
 
     switch (scheme) {
+        case 'forest':
+            // Muted forest, olive, and earth tones for natural/land-area datasets.
+            return d3.scaleOrdinal([
+                '#1B4332', '#2D6A4F', '#40916C', '#74A57F', '#A3B18A',
+                '#606C38', '#7F8F3A', '#A7C957', '#B7B069', '#D4A373',
+                '#B08968', '#8B5E34', '#6F4E37', '#C2B280', '#556B2F',
+                '#386641', '#588157', '#3A5A40', '#7C6A0A', '#A98467'
+            ]);
         case 'category10':
             return d3.scaleOrdinal(category20);
         case 'pastel1':
